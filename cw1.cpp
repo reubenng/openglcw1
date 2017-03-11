@@ -1,8 +1,6 @@
 //============================================================================
 // Name        : cw1.cpp
 // Author      : rdcn1g14
-// Version     :
-// Copyright   : 
 // Description : COMP3214 Coursework 1
 /*
 A. Draw a wire - frame sphere by calculating all the vertex positions and drawing lines between them.
@@ -57,8 +55,8 @@ int main(){
 	 // tell GL to only draw onto a pixel if the shape is closer to the viewer
 	glEnable(GL_DEPTH_TEST); // enable depth-testing
 	
-	// Toril world map from http://vignette1.wikia.nocookie.net/forgottenrealms/images/8/84/Toril_World_Map.jpg
-	loadpicture("./Toril_World_Map.bmp");
+	// Toril world map from http://img12.deviantart.net/3948/i/2008/110/9/7/abeir_toril_by_ikaazu.jpg
+	loadpicture("./abeir_toril.bmp");
 	setupshaders();
 	setupgeometry();
 	// glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -79,15 +77,6 @@ int main(){
 void setupshaders(){int length;
 	char text[512];
 	GLint success;
-	// colour surface
-	const char* fragment_shader = filetobuf((char*)"./cw1.frag");
-	fragmentshader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentshader, 1, &fragment_shader, NULL);
-	glCompileShader(fragmentshader);
-	glGetShaderiv(fragmentshader, GL_COMPILE_STATUS, &success);
-	glGetShaderInfoLog(fragmentshader, 512, NULL, text);
-	if(!success) cout << "Validate fragmentshader " << text << endl;
-
 	// vertex display
 	const char* vertex_shader = filetobuf((char*)"./cw1.vert");
 	vertexshader = glCreateShader(GL_VERTEX_SHADER);
@@ -96,6 +85,15 @@ void setupshaders(){int length;
 	glGetShaderiv(vertexshader, GL_COMPILE_STATUS, &success);
 	glGetShaderInfoLog(vertexshader, 512, NULL, text);
 	if(!success) cout << "Validate vertexshader " << text << endl;
+
+	// colour surface
+	const char* fragment_shader = filetobuf((char*)"./cw1.frag");
+	fragmentshader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragmentshader, 1, &fragment_shader, NULL);
+	glCompileShader(fragmentshader);
+	glGetShaderiv(fragmentshader, GL_COMPILE_STATUS, &success);
+	glGetShaderInfoLog(fragmentshader, 512, NULL, text);
+	if(!success) cout << "Validate fragmentshader " << text << endl;
 
 	shaderprogramme = glCreateProgram(); // create empty program
 	glAttachShader(shaderprogramme, fragmentshader); // attach both
@@ -129,13 +127,13 @@ void setupgeometry(){
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, ind.size() * sizeof(GLint), &ind[0], GL_STATIC_DRAW); // for drawing sequence
 	
 	// attribute 0, [vertex, vertex, vertex, texcoord, texcoord]
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), NULL);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), NULL);
 	glEnableVertexAttribArray(0); // attribute 0
 	// attribute 1 for normal
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1); // attribute 1
 	// attribute 2 for texture, every 2 points
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(2); // attribute 2
 
 	glBindVertexArray(normalvao); // set to normal vao
@@ -162,9 +160,10 @@ void render(){
     glm::mat4 MVP = Projection * View * Model;
     glUniformMatrix4fv(glGetUniformLocation(shaderprogramme, "mvpmatrix"), 1, GL_FALSE, glm::value_ptr(MVP));
     /* Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram */
-    
-    glUniform1i(glGetUniformLocation(shaderprogramme, "texture"), 0); // off texture
-    // glUniform1i(glGetUniformLocation(shaderprogramme, "shade"), 1);
+
+    glUniform3fv(glGetUniformLocation(shaderprogramme, "colour"), 1, glm::value_ptr(glm::vec3(1.0, 0.5, 0.2)));
+    glUniform1i(glGetUniformLocation(shaderprogramme, "texturemode"), 0); // off texture
+    glUniform1i(glGetUniformLocation(shaderprogramme, "shade"), 0);
 	check((char*)"Render");
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear screen
 	if(screen == 1){
@@ -176,7 +175,7 @@ void render(){
 		glBindVertexArray(normalvao); // set vao as input for drawing
 		glDrawArrays(GL_LINES, 0, norm.size()); // draw from point 0, for 3 points
 	}else if(screen == 3){
-        // glUniform1i(glGetUniformLocation(shaderprogramme, "shade"), 1);
+        glUniform1i(glGetUniformLocation(shaderprogramme, "shade"), 1);
 		glBindVertexArray(spherevao); // set vao as input for drawing
 		glDrawElements(GL_TRIANGLES, ind.size(), GL_UNSIGNED_INT, 0); // draw from point 0, for 3 points
 	}else if(screen == 4){
@@ -184,7 +183,7 @@ void render(){
 		glDrawElements(GL_LINE_STRIP, ind.size(), GL_UNSIGNED_INT, 0);
 		// glDrawArrays(GL_LINE_STRIP, 0, spherevertices.size()); // draw from point 0, for 3 points
 	}else if(screen == 5){
-        glUniform1i(glGetUniformLocation(shaderprogramme, "texture"), 1); // on texture
+        glUniform1i(glGetUniformLocation(shaderprogramme, "texturemode"), 1); // on texture
 		glBindVertexArray(spherevao); // set vao as input for drawing
 		glDrawElements(GL_TRIANGLES, ind.size(), GL_UNSIGNED_INT, 0);
 	}

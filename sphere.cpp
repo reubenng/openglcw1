@@ -29,15 +29,20 @@ vector<GLfloat>* sphere (vector<GLfloat>* verts, vector<GLint>* ind, vector<GLfl
 			normals->push_back(vertex.x); 
 			normals->push_back(vertex.y); 
 			normals->push_back(vertex.z);
+
 			// calculating normals
 			x = x + x * 0.1; // normal is parallel to distance from centre
 			y = y + y * 0.1;
 			z = z + z * 0.1;
 			glm::vec3 normal(x, y, z); // normal vertex
+			verts->push_back(normal.x);
+			verts->push_back(normal.y);
+			verts->push_back(normal.z);
+
 			normals->push_back(normal.x);
 			normals->push_back(normal.y);
 			normals->push_back(normal.z);
-
+			
             verts->push_back (v); // texcord for texture
             verts->push_back (u);
 		}

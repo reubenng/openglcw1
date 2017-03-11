@@ -8,3 +8,5 @@ using namespace std;
 char* filetobuf(char *file);
 
 void check(char *where);
+
+GLuint loadpicture(const char* path);

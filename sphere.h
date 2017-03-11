@@ -12,4 +12,4 @@
 #include <iostream>
 using namespace std;
 
-vector<GLfloat>* sphere (vector<GLfloat>* verts, GLint rings, GLint segments);
+vector<GLfloat>* sphere (vector<GLfloat>* verts, vector<GLint>* ind, vector<GLfloat>* normals, GLint rings, GLint segments);

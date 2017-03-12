@@ -78,8 +78,31 @@ GLuint loadpicture(const char* path){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // texture
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // filtering
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, w, h, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
-    return texture;
+    // stbi_image_free(data);
+    // return texture;
 }
+
+
+// GLuint loadpicture(GLuint * texture, const char* path, int* w, int* h, int* comp){
+//     unsigned char header[54]; // 54 bytes header
+//     unsigned char* data; // rgb data
+//     unsigned int dataPos, imgsize, w, h; // width, height
+//     GLuint texture;
+
+//     unsigned char* data = stbi_load(path, w, h, comp, STBI_rgb_alpha);
+//     if(data == nullptr) throw(std::string("Failed to load texture"));
+
+//     glGenTextures(1, &texture); // generate
+//     glBindTexture(GL_TEXTURE_2D, texture); // bind
+//     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // texture
+//     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+//     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // filtering
+//     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+//     glGenerateMipmap(GL_TEXTURE_2D);
+//     // stbi_image_free(data);
+//     // return texture;
+// }

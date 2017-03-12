@@ -11,12 +11,15 @@ E. Draw a textured object, such as a rectangle (plane) , box or sphere .
 */
 //============================================================================
 
+// #define STB_IMAGE_IMPLEMENTATION
+// #define STBI_ASSERT(x)
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "utils.h"
+// #include "stb_image.h"
 #include "spherecone.h"
 #include <vector>
 #include <iostream>
@@ -58,6 +61,9 @@ int main(){
 	glEnable(GL_DEPTH_TEST); // enable depth-testing
 	
 	// Toril world map from http://img12.deviantart.net/3948/i/2008/110/9/7/abeir_toril_by_ikaazu.jpg
+	// GLuint texture;
+	// int w, h, comp; // for texture loading
+	// loadpicture(&texture, "./abeir_toril.bmp", &w, &h, &comp);
 	loadpicture("./abeir_toril.bmp");
 	setupshaders();
 	setupgeometry();

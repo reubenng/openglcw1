@@ -53,8 +53,14 @@ GLuint loadpicture(const char* path){
         return 0;
     }
     // Make sure this is a 24bpp file
-    if ( *(int*)&(header[0x1E]) != 0  ) {cout << "Not a correct BMP file" << endl;    return 0;}
-    if ( *(int*)&(header[0x1C]) != 24 ) {cout << "Not a correct BMP file" << endl;    return 0;}
+    if ( *(int*)&(header[0x1E]) != 0  ){
+        cout << "Not a correct BMP file" << endl;    
+        return 0;
+    }
+    if ( *(int*)&(header[0x1C]) != 24 ){
+        cout << "Not a correct BMP file" << endl;    
+        return 0;
+    }
 
     // Read the information about the image
     dataPos   = *(int*)&(header[0x0A]);

@@ -39,3 +39,5 @@ tangle
 (plane)
 , box or sphere
 .
+
+- Toril world map from http://img12.deviantart.net/3948/i/2008/110/9/7/abeir_toril_by_ikaazu.jpg

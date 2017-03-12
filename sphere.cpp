@@ -1,7 +1,7 @@
 #include "sphere.h"
 #include "utils.h"
 
-vector<GLfloat>* sphere (vector<GLfloat>* verts, vector<GLint>* ind, vector<GLfloat>* normals, GLint rings, GLint segments){ // UV sphere
+vector<GLfloat>* sphere(vector<GLfloat>* verts, vector<GLint>* ind, vector<GLfloat>* normals, GLint rings, GLint segments){ // UV sphere
 	for(int i = 0; i <= rings; i++){ // for every ring around the sphere
 		// calculating theta
 		float v = i / (float) rings;
@@ -42,7 +42,7 @@ vector<GLfloat>* sphere (vector<GLfloat>* verts, vector<GLint>* ind, vector<GLfl
 			normals->push_back(normal.x);
 			normals->push_back(normal.y);
 			normals->push_back(normal.z);
-			
+
             verts->push_back (v); // texcord for texture
             verts->push_back (u);
 		}
@@ -58,4 +58,24 @@ vector<GLfloat>* sphere (vector<GLfloat>* verts, vector<GLint>* ind, vector<GLfl
         ind->push_back (i + segments + 1);
     }
 	check((char*)"sphere");
+}
+
+vector<GLfloat>* cone(vector<GLfloat>* verts, GLint rings, GLint segments){
+	GLfloat hInc = 1.0f / rings;
+    GLfloat tInc = (2 * glm::pi<GLfloat>()) / segments;
+    GLfloat h = 1.0f, t;
+    
+    for (GLint i = 0; i < rings; i++){
+        h -= hInc;
+        t = 0.0f;
+        for (GLint j = 0; j < segments; j++){
+            t += tInc;
+            GLfloat x = h * sinf(t);
+            GLfloat y = h * cosf(t);
+            
+            verts->push_back(x);
+            verts->push_back(y);
+            verts->push_back(h);
+        }
+    }
 }

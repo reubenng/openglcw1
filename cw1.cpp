@@ -23,10 +23,11 @@ E. Draw a textured object, suc h as a rec tangle (plane) , box or sphere .
 using namespace std;
 
 GLuint spherevbo, spherevao, sphereebo, normalvao, normalvbo, fragmentshader, vertexshader, shaderprogramme;
-vector<GLfloat> spherevertices, norm; // for storing sphere vertices and normal
+GLuint conevbo, conevao;
+vector<GLfloat> spherevertices, norm, conevert; // for storing sphere vertices and normal
 vector<GLint> ind;
-GLint rings = 20; // number of rings and segments that make sphere
-GLint segments = 40;
+GLint rings = 25; // number of rings and segments that make sphere
+GLint segments = 50;
 int screen = 1;
 
 void setupshaders();
@@ -111,6 +112,7 @@ void setupshaders(){int length;
 
 void setupgeometry(){
 	sphere(&spherevertices, &ind, &norm, rings, segments);
+	cone(&conevert, rings, segments);
 	
 	glGenVertexArrays(1, &spherevao); // generate vao
 	glGenBuffers(1, &spherevbo); // generate vbo
@@ -140,7 +142,16 @@ void setupgeometry(){
 	glBindBuffer(GL_ARRAY_BUFFER, normalvbo); // set to normal vbo
 	glBufferData(GL_ARRAY_BUFFER, norm.size() * sizeof(GLfloat), &norm[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), NULL);
-	glEnableVertexAttribArray(0); // attribute 1
+	glEnableVertexAttribArray(0);
+
+	glGenVertexArrays(1, &conevao); // generate vao for cones
+	glGenBuffers(1, &conevbo); // generate vbo
+	glBindVertexArray(conevao); // set to current vao
+	glBindBuffer(GL_ARRAY_BUFFER, conevbo); // set to current vbo
+	glBufferData(GL_ARRAY_BUFFER, conevert.size() * sizeof(GLfloat), &conevert[0], GL_STATIC_DRAW);
+	// attribute 0 
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), NULL);
+	glEnableVertexAttribArray(0); // attribute 0
 
 	glBindVertexArray(0); // unbind
   	check((char*)"setupgeometry");
@@ -159,30 +170,59 @@ void render(){
     glm::mat4 Model = glm::mat4(1.0);
     glm::mat4 MVP = Projection * View * Model;
     glUniformMatrix4fv(glGetUniformLocation(shaderprogramme, "mvpmatrix"), 1, GL_FALSE, glm::value_ptr(MVP));
-    /* Bind our modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram */
+    /* Bind modelmatrix variable to be a uniform called mvpmatrix in our shaderprogram */
 
     glUniform3fv(glGetUniformLocation(shaderprogramme, "colour"), 1, glm::value_ptr(glm::vec3(1.0, 0.5, 0.2)));
     glUniform1i(glGetUniformLocation(shaderprogramme, "texturemode"), 0); // off texture
     glUniform1i(glGetUniformLocation(shaderprogramme, "shade"), 0);
 	check((char*)"Render");
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear screen
-	if(screen == 1){
+	if(screen == 1){ // wireframe sphere
 		glBindVertexArray(spherevao); // set vao as input for drawing
 		glDrawElements(GL_LINE_STRIP, ind.size(), GL_UNSIGNED_INT, 0);
-	}else if(screen == 2){
+	}else if(screen == 2){ // wireframe with normals
 		glBindVertexArray(spherevao); // set vao as input for drawing
 		glDrawElements(GL_LINE_STRIP, ind.size(), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(normalvao); // set vao as input for drawing
 		glDrawArrays(GL_LINES, 0, norm.size()); // draw from point 0, for 3 points
-	}else if(screen == 3){
-        glUniform1i(glGetUniformLocation(shaderprogramme, "shade"), 1);
+	}else if(screen == 3){ // shaded sphere
+        glUniform1i(glGetUniformLocation(shaderprogramme, "shade"), 1); // enable shade
 		glBindVertexArray(spherevao); // set vao as input for drawing
 		glDrawElements(GL_TRIANGLES, ind.size(), GL_UNSIGNED_INT, 0); // draw from point 0, for 3 points
-	}else if(screen == 4){
+	}else if(screen == 4){ // animation
+		// big sphere
+		MVP = glm::mat4(1.);
+	    MVP = glm::scale(MVP, glm::vec3(0.25));
+	    MVP = glm::translate(MVP, glm::vec3(sin(angle), cos(angle), 0.0));
+	    glUniformMatrix4fv(glGetUniformLocation(shaderprogramme, "mvpmatrix"), 1, GL_FALSE, glm::value_ptr(MVP));
 		glBindVertexArray(spherevao); // set vao as input for drawing
 		glDrawElements(GL_LINE_STRIP, ind.size(), GL_UNSIGNED_INT, 0);
-		// glDrawArrays(GL_LINE_STRIP, 0, spherevertices.size()); // draw from point 0, for 3 points
-	}else if(screen == 5){
+		// small sphere
+		MVP = glm::mat4(1.);
+	    MVP = glm::scale(MVP, glm::vec3(0.5));
+	    MVP = glm::translate(MVP, glm::vec3(sin(-t), cos(-t), 0.0));
+	    MVP = glm::scale(MVP, glm::vec3(0.1));
+	    glUniformMatrix4fv(glGetUniformLocation(shaderprogramme, "mvpmatrix"), 1, GL_FALSE, glm::value_ptr(MVP));
+		glBindVertexArray(spherevao); // set vao as input for drawing
+		glDrawElements(GL_LINE_STRIP, ind.size(), GL_UNSIGNED_INT, 0);
+		glUniform3fv(glGetUniformLocation(shaderprogramme, "colour"), 1, glm::value_ptr(glm::vec3(1.0, 0.0, 0.0)));
+		// big cone
+	    MVP = Projection * View * Model;
+	    MVP = glm::scale(MVP, glm::vec3(0.7));
+	    MVP = glm::translate(MVP, glm::vec3(sin(t), cos(t), 0.0));
+	    MVP = glm::scale(MVP, glm::vec3(0.2));
+	    glUniformMatrix4fv(glGetUniformLocation(shaderprogramme, "mvpmatrix"), 1, GL_FALSE, glm::value_ptr(MVP));
+		glBindVertexArray(conevao); // set vao as input for drawing
+		glDrawArrays(GL_LINE_LOOP, 0, ind.size());
+		// small cone
+	    MVP = Projection * View * Model;
+	    MVP = glm::scale(MVP, glm::vec3(0.75));
+	    MVP = glm::translate(MVP, glm::vec3(sin(-angle), cos(-angle), 0.0));
+	    MVP = glm::scale(MVP, glm::vec3(0.25));
+	    glUniformMatrix4fv(glGetUniformLocation(shaderprogramme, "mvpmatrix"), 1, GL_FALSE, glm::value_ptr(MVP));
+		glBindVertexArray(conevao); // set vao as input for drawing
+		glDrawArrays(GL_LINE_LOOP, 0, ind.size());
+	}else if(screen == 5){ // textureds
         glUniform1i(glGetUniformLocation(shaderprogramme, "texturemode"), 1); // on texture
 		glBindVertexArray(spherevao); // set vao as input for drawing
 		glDrawElements(GL_TRIANGLES, ind.size(), GL_UNSIGNED_INT, 0);
